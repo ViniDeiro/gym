@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "Gym League",
+    "slug": "gym-league",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "scheme": "gymleague",
+    "splash": {
+      "backgroundColor": "#070A12",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.gymleague.app"
+    },
+    "android": {
+      "package": "com.gymleague.app"
+    },
+    "extra": {
+      "supabaseUrl": "",
+      "supabaseAnonKey": ""
+    }
+  }
+}
