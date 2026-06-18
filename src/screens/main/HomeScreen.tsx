@@ -1,4 +1,5 @@
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useCallback, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { Button } from "@/components/Button";
@@ -20,12 +21,15 @@ export function HomeScreen() {
     useCallback(() => {
       async function load() {
         if (!user) return;
-        setLoading(true);
-        setLeagues(await listMyLeagues(user.id));
-        setLoading(false);
+        setLoading(leagues.length === 0);
+        try {
+          setLeagues(await listMyLeagues(user.id));
+        } finally {
+          setLoading(false);
+        }
       }
       load();
-    }, [user])
+    }, [user, leagues.length])
   );
 
   const firstName = profile?.name?.split(" ")[0] ?? "Atleta";
@@ -38,11 +42,20 @@ export function HomeScreen() {
         <Text style={styles.copy}>Seu ranking sobe quando a constância aparece.</Text>
       </View>
 
-      <Card style={styles.scoreCard}>
-        <Text style={styles.cardLabel}>Ligas ativas</Text>
-        {loading ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.bigNumber}>{leagues.length}</Text>}
-        <Text style={styles.cardText}>Crie uma liga privada ou entre pelo código dos amigos.</Text>
-      </Card>
+      <LinearGradient colors={["#14233A", "#0D1526"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.arena}>
+        <View style={styles.arenaTop}>
+          <View>
+            <Text style={styles.cardLabel}>Arena ativa</Text>
+            <Text style={styles.arenaTitle}>Modo competição</Text>
+          </View>
+          <View style={styles.pulseDot} />
+        </View>
+        <View style={styles.arenaMetric}>
+          {loading && leagues.length === 0 ? <ActivityIndicator color={colors.primary} /> : <Text style={styles.bigNumber}>{leagues.length}</Text>}
+          <Text style={styles.metricText}>liga{leagues.length === 1 ? "" : "s"} em disputa</Text>
+        </View>
+        <Text style={styles.cardText}>Entre no treino do dia, mantenha streaks e provoque a galera no feed.</Text>
+      </LinearGradient>
 
       <View style={styles.actions}>
         <Button title="Criar liga" onPress={() => navigation.navigate("CreateLeague")} style={styles.action} />
@@ -66,9 +79,14 @@ const styles = StyleSheet.create({
   kicker: { color: colors.primary, fontWeight: "900", textTransform: "uppercase" },
   title: { ...typography.title, color: colors.text },
   copy: { ...typography.body, color: colors.muted },
-  scoreCard: { gap: 8, borderColor: colors.primaryDark },
+  arena: { borderRadius: 8, borderWidth: 1, borderColor: colors.border, padding: 18, gap: 14, overflow: "hidden" },
+  arenaTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  arenaTitle: { color: colors.text, fontSize: 20, fontWeight: "900" },
+  pulseDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.success, shadowColor: colors.success, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.7, shadowRadius: 10 },
+  arenaMetric: { flexDirection: "row", alignItems: "flex-end", gap: 10 },
   cardLabel: { color: colors.muted, fontWeight: "800", textTransform: "uppercase", fontSize: 12 },
-  bigNumber: { color: colors.primary, fontSize: 56, fontWeight: "900" },
+  bigNumber: { color: colors.primary, fontSize: 58, fontWeight: "900" },
+  metricText: { color: colors.text, fontWeight: "900", marginBottom: 12 },
   cardText: { color: colors.muted, lineHeight: 20 },
   actions: { flexDirection: "row", gap: 12 },
   action: { flex: 1 },

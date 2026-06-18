@@ -1,24 +1,24 @@
-import { supabase } from "@/lib/supabase";
-import { FeedPost } from "@/types/domain";
+import { apiRequest } from "@/lib/api";
+import { FeedComment, FeedPost } from "@/types/domain";
 
 export async function getLeagueFeed(leagueId: string) {
-  const { data, error } = await supabase
-    .from("posts")
-    .select("*, users(name, avatar_url)")
-    .eq("league_id", leagueId)
-    .order("created_at", { ascending: false })
-    .limit(40);
-
-  if (error) {
-    throw error;
-  }
-
-  return (data ?? []) as FeedPost[];
+  const data = await apiRequest<{ posts: FeedPost[] }>(`/leagues/${leagueId}/feed`);
+  return data.posts;
 }
 
-export async function likePost(postId: string, userId: string) {
-  const { error } = await supabase.from("post_likes").upsert({ post_id: postId, user_id: userId });
-  if (error) {
-    throw error;
-  }
+export async function likePost(postId: string, _userId: string) {
+  return apiRequest<{ liked: boolean; likesCount: number }>(`/posts/${postId}/like`, { method: "POST" });
+}
+
+export async function commentPost(postId: string, body: string) {
+  const data = await apiRequest<{ comment: FeedComment }>(`/posts/${postId}/comments`, {
+    method: "POST",
+    body: JSON.stringify({ body })
+  });
+  return data.comment;
+}
+
+export async function getPostComments(postId: string) {
+  const data = await apiRequest<{ comments: FeedComment[] }>(`/posts/${postId}/comments`);
+  return data.comments;
 }

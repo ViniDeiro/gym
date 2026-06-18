@@ -1,7 +1,9 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { LinearGradient } from "expo-linear-gradient";
+import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { Avatar } from "@/components/Avatar";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
 import { Screen } from "@/components/Screen";
@@ -19,22 +21,27 @@ export function LeagueDetailsScreen({ navigation, route }: Props) {
   const [members, setMembers] = useState<LeagueMember[]>([]);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasLoaded = useRef(false);
 
   useFocusEffect(
     useCallback(() => {
       async function load() {
-        setLoading(true);
-        const details = await getLeagueDetails(leagueId);
-        setLeague(details.league);
-        setMembers(details.members);
-        setChallenges(details.challenges);
-        setLoading(false);
+        setLoading(!hasLoaded.current);
+        try {
+          const details = await getLeagueDetails(leagueId);
+          setLeague(details.league);
+          setMembers(details.members);
+          setChallenges(details.challenges);
+          hasLoaded.current = true;
+        } finally {
+          setLoading(false);
+        }
       }
       load();
     }, [leagueId])
   );
 
-  if (loading || !league) {
+  if (!league) {
     return (
       <Screen>
         <ActivityIndicator color={colors.primary} />
@@ -44,7 +51,7 @@ export function LeagueDetailsScreen({ navigation, route }: Props) {
 
   return (
     <Screen>
-      <Card style={styles.hero}>
+      <LinearGradient colors={["#182B44", "#111A2C"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.hero}>
         <Text style={styles.kicker}>Código {league.invite_code}</Text>
         <Text style={styles.title}>{league.name}</Text>
         <Text style={styles.copy}>{league.description || "A competição está aberta."}</Text>
@@ -58,7 +65,7 @@ export function LeagueDetailsScreen({ navigation, route }: Props) {
             <Text style={styles.label}>desafios</Text>
           </View>
         </View>
-      </Card>
+      </LinearGradient>
 
       <View style={styles.grid}>
         <Button title="Fiz meu treino hoje" onPress={() => navigation.navigate("Checkin", { leagueId })} />
@@ -70,8 +77,11 @@ export function LeagueDetailsScreen({ navigation, route }: Props) {
       <Text style={styles.section}>Membros</Text>
       {members.map((member) => (
         <Card key={member.user_id} style={styles.member}>
-          <Text style={styles.memberName}>{member.users?.name ?? "Atleta"}</Text>
-          <Text style={styles.copy}>{member.role === "owner" ? "Dono da liga" : "Competidor"}</Text>
+          <Avatar name={member.users?.name} uri={member.users?.avatar_url} size={42} />
+          <View style={styles.memberText}>
+            <Text style={styles.memberName}>{member.users?.name ?? "Atleta"}</Text>
+            <Text style={styles.copy}>{member.role === "owner" ? "Dono da liga" : "Competidor"}</Text>
+          </View>
         </Card>
       ))}
     </Screen>
@@ -79,7 +89,7 @@ export function LeagueDetailsScreen({ navigation, route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  hero: { gap: 10, borderColor: colors.primaryDark },
+  hero: { gap: 10, borderColor: colors.primaryDark, borderWidth: 1, borderRadius: 8, padding: 18 },
   kicker: { color: colors.primary, fontWeight: "900", textTransform: "uppercase" },
   title: { ...typography.title, color: colors.text },
   copy: { color: colors.muted, lineHeight: 20 },
@@ -88,6 +98,7 @@ const styles = StyleSheet.create({
   label: { color: colors.muted, fontSize: 12, textTransform: "uppercase", fontWeight: "800" },
   grid: { gap: 10 },
   section: { color: colors.text, fontSize: 18, fontWeight: "900" },
-  member: { gap: 4 },
+  member: { flexDirection: "row", alignItems: "center", gap: 10 },
+  memberText: { flex: 1, minWidth: 0, gap: 4 },
   memberName: { color: colors.text, fontWeight: "800", fontSize: 16 }
 });

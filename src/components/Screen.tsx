@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { ScrollView, StatusBar, StyleSheet, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors } from "@/theme/colors";
 
@@ -14,7 +15,9 @@ export function Screen({ children, scroll = true }: ScreenProps) {
   return (
     <SafeAreaView style={styles.safe}>
       <StatusBar barStyle="light-content" />
-      {scroll ? <ScrollView keyboardShouldPersistTaps="handled">{content}</ScrollView> : content}
+      <LinearGradient colors={[colors.backgroundAlt, colors.background]} style={StyleSheet.absoluteFillObject} />
+      <View style={styles.topRail} />
+      {scroll ? <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.scrollContent}>{content}</ScrollView> : content}
     </SafeAreaView>
   );
 }
@@ -28,5 +31,16 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     padding: 20,
     gap: 16
+  },
+  scrollContent: {
+    flexGrow: 1
+  },
+  topRail: {
+    position: "absolute",
+    top: 0,
+    left: 20,
+    right: 20,
+    height: 1,
+    backgroundColor: colors.glow
   }
 });

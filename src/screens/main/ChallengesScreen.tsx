@@ -24,24 +24,27 @@ export function ChallengesScreen({ route }: Props) {
     useCallback(() => {
       async function load() {
         if (!user) return;
-        setLoading(true);
-        const [details, challengeProgress] = await Promise.all([
-          getLeagueDetails(route.params.leagueId),
-          getMyChallengeProgress(route.params.leagueId, user.id)
-        ]);
-        setChallenges(details.challenges);
-        setProgress(challengeProgress);
-        setLoading(false);
+        setLoading(challenges.length === 0);
+        try {
+          const [details, challengeProgress] = await Promise.all([
+            getLeagueDetails(route.params.leagueId),
+            getMyChallengeProgress(route.params.leagueId, user.id)
+          ]);
+          setChallenges(details.challenges);
+          setProgress(challengeProgress);
+        } finally {
+          setLoading(false);
+        }
       }
       load();
-    }, [route.params.leagueId, user])
+    }, [route.params.leagueId, user, challenges.length])
   );
 
   return (
     <Screen>
       <Text style={styles.title}>Desafios</Text>
       <Text style={styles.copy}>O MVP cria desafios padrão por liga e deixa a tabela pronta para progresso individual.</Text>
-      {loading ? <ActivityIndicator color={colors.primary} /> : null}
+      {loading && challenges.length === 0 ? <ActivityIndicator color={colors.primary} /> : null}
       {challenges.map((challenge) => {
         const itemProgress = progress.find((item) => item.challenge_id === challenge.id);
         const current = itemProgress?.progress ?? 0;

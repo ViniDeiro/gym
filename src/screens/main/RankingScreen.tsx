@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { Avatar } from "@/components/Avatar";
 import { Card } from "@/components/Card";
 import { ProgressBar } from "@/components/ProgressBar";
 import { Screen } from "@/components/Screen";
@@ -21,23 +22,27 @@ export function RankingScreen({ route }: Props) {
   useFocusEffect(
     useCallback(() => {
       async function load() {
-        setLoading(true);
-        setRanking(await getLeagueLeaderboard(route.params.leagueId));
-        setLoading(false);
+        setLoading(ranking.length === 0);
+        try {
+          setRanking(await getLeagueLeaderboard(route.params.leagueId));
+        } finally {
+          setLoading(false);
+        }
       }
       load();
-    }, [route.params.leagueId])
+    }, [route.params.leagueId, ranking.length])
   );
 
   return (
     <Screen>
       <Text style={styles.title}>Ranking da liga</Text>
       <Text style={styles.copy}>Check-in +10, streaks até +40, desafios +30 e 7 dias sem treinar -15.</Text>
-      {loading ? <ActivityIndicator color={colors.primary} /> : null}
+      {loading && ranking.length === 0 ? <ActivityIndicator color={colors.primary} /> : null}
       {ranking.map((entry) => (
-        <Card key={entry.userId} style={styles.row}>
+        <Card key={entry.userId} style={[styles.row, entry.rank === 1 && styles.leaderRow]}>
           <View style={styles.rowTop}>
             <Text style={styles.rank}>#{entry.rank}</Text>
+            <Avatar name={entry.name} uri={entry.avatarUrl} size={42} />
             <View style={styles.info}>
               <Text style={styles.name}>{entry.name}</Text>
               <Text style={styles.meta}>{entry.streak} dias de streak · {entry.weeklyFrequency}x nesta semana</Text>
@@ -55,6 +60,7 @@ const styles = StyleSheet.create({
   title: { ...typography.title, color: colors.text },
   copy: { ...typography.body, color: colors.muted },
   row: { gap: 12 },
+  leaderRow: { borderColor: colors.accent },
   rowTop: { flexDirection: "row", alignItems: "center", gap: 12 },
   rank: { color: colors.accent, fontSize: 22, fontWeight: "900", width: 44 },
   info: { flex: 1, gap: 4 },

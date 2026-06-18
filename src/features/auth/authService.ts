@@ -1,36 +1,16 @@
-import { supabase } from "@/lib/supabase";
+import { apiRequest } from "@/lib/api";
+import { UserProfile } from "@/types/domain";
 
 export async function signUpWithEmail(email: string, password: string, name: string) {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { name }
-    }
+  return apiRequest<{ token: string; user: UserProfile }>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, password, name })
   });
-
-  if (error) {
-    throw error;
-  }
-
-  if (data.user) {
-    await supabase.from("users").upsert({
-      id: data.user.id,
-      email,
-      name,
-      avatar_url: null,
-      goal: null,
-      current_gym: null
-    });
-  }
-
-  return data;
 }
 
 export async function signInWithEmail(email: string, password: string) {
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    throw error;
-  }
-  return data;
+  return apiRequest<{ token: string; user: UserProfile }>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password })
+  });
 }

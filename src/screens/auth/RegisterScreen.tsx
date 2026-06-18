@@ -4,6 +4,7 @@ import { Alert, StyleSheet, Text } from "react-native";
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
+import { useAuth } from "@/features/auth/AuthProvider";
 import { signUpWithEmail } from "@/features/auth/authService";
 import { AuthStackParamList } from "@/navigation/types";
 import { colors } from "@/theme/colors";
@@ -12,6 +13,7 @@ import { typography } from "@/theme/typography";
 type Props = NativeStackScreenProps<AuthStackParamList, "Register">;
 
 export function RegisterScreen({ navigation }: Props) {
+  const { setAuthSession } = useAuth();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,7 +22,8 @@ export function RegisterScreen({ navigation }: Props) {
   async function submit() {
     try {
       setLoading(true);
-      await signUpWithEmail(email.trim(), password, name.trim());
+      const data = await signUpWithEmail(email.trim(), password, name.trim());
+      await setAuthSession(data.token, data.user);
     } catch (error) {
       Alert.alert("Não foi possível cadastrar", error instanceof Error ? error.message : "Tente novamente.");
     } finally {

@@ -1,4 +1,5 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { colors } from "@/theme/colors";
 
 type ButtonProps = {
@@ -10,6 +11,12 @@ type ButtonProps = {
 };
 
 export function Button({ title, onPress, loading, variant = "primary", style }: ButtonProps) {
+  const content = loading ? (
+    <ActivityIndicator color={variant === "primary" ? colors.background : colors.text} />
+  ) : (
+    <Text style={[styles.text, variant === "primary" && styles.primaryText]}>{title}</Text>
+  );
+
   return (
     <Pressable
       accessibilityRole="button"
@@ -23,7 +30,13 @@ export function Button({ title, onPress, loading, variant = "primary", style }: 
         style
       ]}
     >
-      {loading ? <ActivityIndicator color={variant === "primary" ? colors.background : colors.text} /> : <Text style={[styles.text, variant === "primary" && styles.primaryText]}>{title}</Text>}
+      {variant === "primary" ? (
+        <LinearGradient colors={[colors.primary, "#8BFFD9"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.gradientFill}>
+          {content}
+        </LinearGradient>
+      ) : (
+        content
+      )}
     </Pressable>
   );
 }
@@ -34,10 +47,16 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 18
+    paddingHorizontal: 18,
+    overflow: "hidden"
   },
   primary: {
-    backgroundColor: colors.primary
+    backgroundColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
+    elevation: 8
   },
   secondary: {
     backgroundColor: colors.surfaceAlt,
@@ -59,10 +78,16 @@ const styles = StyleSheet.create({
   },
   text: {
     color: colors.text,
-    fontWeight: "800",
+    fontWeight: "900",
     fontSize: 15
   },
   primaryText: {
     color: colors.background
+  },
+  gradientFill: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 18
   }
 });

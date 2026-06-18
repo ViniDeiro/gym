@@ -91,6 +91,18 @@ export type FeedPost = {
   message: string;
   created_at: string;
   users?: Pick<UserProfile, "name" | "avatar_url">;
+  checkins?: Pick<Checkin, "photo_url" | "workout_type" | "note"> | null;
+  likes_count: number;
+  liked_by_me: boolean;
+  comments_count: number;
+  comments: FeedComment[];
+};
+
+export type FeedComment = {
+  id: string;
+  body: string;
+  created_at: string;
+  users?: Pick<UserProfile, "name" | "avatar_url">;
 };
 
 export type LeaderboardEntry = {

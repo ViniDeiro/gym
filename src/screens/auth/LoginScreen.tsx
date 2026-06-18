@@ -4,6 +4,7 @@ import { Alert, StyleSheet, Text } from "react-native";
 import { Button } from "@/components/Button";
 import { Screen } from "@/components/Screen";
 import { TextField } from "@/components/TextField";
+import { useAuth } from "@/features/auth/AuthProvider";
 import { signInWithEmail } from "@/features/auth/authService";
 import { AuthStackParamList } from "@/navigation/types";
 import { colors } from "@/theme/colors";
@@ -12,6 +13,7 @@ import { typography } from "@/theme/typography";
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 export function LoginScreen({ navigation }: Props) {
+  const { setAuthSession } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -19,7 +21,8 @@ export function LoginScreen({ navigation }: Props) {
   async function submit() {
     try {
       setLoading(true);
-      await signInWithEmail(email.trim(), password);
+      const data = await signInWithEmail(email.trim(), password);
+      await setAuthSession(data.token, data.user);
     } catch (error) {
       Alert.alert("Não foi possível entrar", error instanceof Error ? error.message : "Confira seus dados.");
     } finally {

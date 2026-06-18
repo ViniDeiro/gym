@@ -1,37 +1,51 @@
 # Gym League
 
-MVP mobile em React Native + Expo para ligas fitness entre amigos, com autenticação via Supabase, ligas, check-in diário, ranking por pontos, feed social e perfil.
+MVP mobile em React Native + Expo para ligas fitness entre amigos, usando API Node/Express e banco Neon Postgres.
 
 ## Como rodar
 
-1. Instale dependências:
+1. Instale dependencias:
 
 ```bash
 npm install
 ```
 
-2. Crie um projeto no Supabase e rode a migração em `supabase/migrations/001_initial_schema.sql`.
-
-3. Copie `.env.example` para `.env` e preencha:
+2. Configure `.env`:
 
 ```bash
-EXPO_PUBLIC_SUPABASE_URL=
-EXPO_PUBLIC_SUPABASE_ANON_KEY=
+DATABASE_URL=postgresql://...
+JWT_SECRET=troque-por-um-segredo-grande
+PORT=3333
+EXPO_PUBLIC_API_URL=http://localhost:3333
 ```
 
-4. Inicie:
+3. Rode a migracao no Neon:
+
+```bash
+npm run db:migrate
+```
+
+4. Suba a API:
+
+```bash
+npm run start:api
+```
+
+5. Em outro terminal, suba o app:
 
 ```bash
 npm run start
 ```
 
+No iOS Simulator, `http://localhost:3333` funciona. Em celular fisico, use o IP local do Mac em `EXPO_PUBLIC_API_URL`, por exemplo `http://192.168.0.10:3333`.
+
 ## MVP incluso
 
-- Login e cadastro com e-mail/senha.
+- Login e cadastro com e-mail/senha via API propria.
 - Onboarding do conceito.
 - Perfil com nome, foto, objetivo e academia atual.
-- Criar liga e entrar por código.
-- Check-in diário com tipo de treino, observação e foto opcional.
-- Ranking calculado por check-ins, streak, frequência, desafios e penalidade por inatividade.
+- Criar liga e entrar por codigo.
+- Check-in diario com tipo de treino, observacao e foto opcional.
+- Ranking calculado por check-ins, streak, frequencia, desafios e penalidade por inatividade.
 - Feed simples da liga com posts de check-in.
-- Estrutura preparada para GPS, Apple Health, Google Fit, planos pagos, ligas públicas, batalhas 1x1 e ranking global.
+- Estrutura preparada para GPS, Apple Health, Google Fit, planos pagos, ligas publicas, batalhas 1x1 e ranking global.

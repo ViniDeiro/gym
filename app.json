@@ -6,6 +6,15 @@
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "scheme": "gymleague",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Permita que o Gym League use uma foto do treino para validar seu check-in.",
+          "cameraPermission": "Permita que o Gym League abra a camera para validar seu treino."
+        }
+      ]
+    ],
     "splash": {
       "backgroundColor": "#070A12",
       "resizeMode": "contain"
@@ -13,14 +22,16 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.gymleague.app"
+      "bundleIdentifier": "com.gymleague.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "O Gym League usa a camera para validar check-ins com foto do treino.",
+        "NSPhotoLibraryUsageDescription": "O Gym League permite escolher uma foto do treino para validar check-ins."
+      }
     },
     "android": {
-      "package": "com.gymleague.app"
+      "package": "com.gymleague.app",
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES"]
     },
-    "extra": {
-      "supabaseUrl": "",
-      "supabaseAnonKey": ""
-    }
+    "extra": {}
   }
 }

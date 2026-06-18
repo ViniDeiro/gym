@@ -20,12 +20,15 @@ export function MyLeaguesScreen() {
     useCallback(() => {
       async function load() {
         if (!user) return;
-        setLoading(true);
-        setLeagues(await listMyLeagues(user.id));
-        setLoading(false);
+        setLoading(leagues.length === 0);
+        try {
+          setLeagues(await listMyLeagues(user.id));
+        } finally {
+          setLoading(false);
+        }
       }
       load();
-    }, [user])
+    }, [user, leagues.length])
   );
 
   return (
@@ -35,7 +38,7 @@ export function MyLeaguesScreen() {
         <Button title="Criar" onPress={() => navigation.navigate("CreateLeague")} style={styles.action} />
         <Button title="Entrar" variant="secondary" onPress={() => navigation.navigate("JoinLeague")} style={styles.action} />
       </View>
-      {loading ? <ActivityIndicator color={colors.primary} /> : null}
+      {loading && leagues.length === 0 ? <ActivityIndicator color={colors.primary} /> : null}
       {leagues.map((league) => (
         <Card key={league.id} style={styles.card}>
           <Text style={styles.name}>{league.name}</Text>
